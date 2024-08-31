@@ -30,6 +30,5 @@
     "deposit": "ts-node scripts/chargeEthOrErc20.ts",
     "format": "prettier './**/*.{js,json,md,ts,yml}' '!./src/lib/abi' --write && yarn run lint --fix",
     "lint": "eslint ."
-  },
-  "version": "0.0.0"
+  }
 }
