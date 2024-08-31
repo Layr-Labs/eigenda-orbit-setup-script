@@ -2,7 +2,7 @@
   "name": "orbit-setup-script",
   "dependencies": {
     "@arbitrum/nitro-contracts": "^1.1.1",
-    "@arbitrum/orbit-sdk": "^0.8.0",
+    "@arbitrum/orbit-sdk": "^0.9.0",
     "@arbitrum/token-bridge-contracts": "^1.2.1",
     "viem": "^1.20.0"
   },
@@ -22,10 +22,14 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3"
   },
+  "engines": {
+    "yarn": ">=1.22.0 < 2.0.0"
+  },
   "scripts": {
     "setup": "ts-node scripts/setup.ts",
     "deposit": "ts-node scripts/chargeEthOrErc20.ts",
     "format": "prettier './**/*.{js,json,md,ts,yml}' '!./src/lib/abi' --write && yarn run lint --fix",
     "lint": "eslint ."
-  }
+  },
+  "version": "0.0.0"
 }
