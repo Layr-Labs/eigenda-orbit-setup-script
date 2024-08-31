@@ -22,12 +22,12 @@
     "@openzeppelin/contracts-upgradeable" "4.5.2"
     patch-package "^6.4.7"
 
-"@arbitrum/orbit-sdk@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@arbitrum/orbit-sdk/-/orbit-sdk-0.8.0.tgz#67b437afb2b2d17f9ec28391bcbbde9689c42a04"
-  integrity sha512-UrcCOqDA3crCKIhOW957DmGvglPkpU/VT1QvcgCD+i4UFjkyT0/aMizVoj8AgsLaq5X46trMN2HKBkrAEjhLlg==
+"@arbitrum/orbit-sdk@^0.9.0":
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/@arbitrum/orbit-sdk/-/orbit-sdk-0.9.1.tgz#d02699ea670078cb87b6413f663de911487adb02"
+  integrity sha512-njL7xCRu49/bES7RV/Kh1sGG7iTrJOTYCMMriferRfX3IATOdQiCGF4Onw0QNIcHSiurFxFECZGupTz5I7q2Cg==
   dependencies:
-    "@arbitrum/sdk" "^3.2.0"
+    "@arbitrum/sdk" "^3.3.2"
     "@arbitrum/token-bridge-contracts" "^1.2.1"
     ethers "^5.7.2"
 
@@ -35,6 +35,17 @@
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@arbitrum/sdk/-/sdk-3.2.0.tgz#9cc2d2d1df929c7a1702f366a444d1439d17dc08"
   integrity sha512-Y8NyL1EgWE8SGRFFxtqYIedQzKe7pMS9P9j0iDQ3eL1xvOf0t0WKb8vcta0cP2TcAOOpRZ3TWKPVfpBtwMsXCg==
+  dependencies:
+    "@ethersproject/address" "^5.0.8"
+    "@ethersproject/bignumber" "^5.1.1"
+    "@ethersproject/bytes" "^5.0.8"
+    async-mutex "^0.4.0"
+    ethers "^5.1.0"
+
+"@arbitrum/sdk@^3.3.2":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@arbitrum/sdk/-/sdk-3.7.0.tgz#2a6035a596469e43bdb3721298cdae9c0bccb9d7"
+  integrity sha512-7Omaqd8xfhCatxyyFZC3k7S9HE8pTVuk9tg+snqk8ojDVqO8kiD3YrYS9STJqbKxLBQ1TRktbRaUOAiH3+Y0zg==
   dependencies:
     "@ethersproject/address" "^5.0.8"
     "@ethersproject/bignumber" "^5.1.1"
