@@ -111,9 +111,12 @@ services:
 
     ports:
       - 3100:3100
+    volumes:
+      - "./config:/home/user/.arbitrum"
+    restart: unless-stopped
 
   das-server:
-    image: ghcr.io/layr-labs/nitro-eigenda:latest
+    image: ghcr.io/layr-labs/nitro-eigenda:eigenda-v3.1.2
     platform: linux/amd64
     entrypoint: [ "/bin/bash", "/das-server.sh" ]
     volumes:

@@ -1,9 +1,9 @@
 import { ethers } from 'ethers'
-import { L3Config } from './l3ConfigType'
+import { ChildChainConfig } from './childChainConfigType'
 import fs from 'fs'
 import { ethOrERC20Deposit } from './nativeTokenDeposit'
 import { createERC20Bridge } from './createTokenBridge'
-import { l3Configuration } from './l3Configuration'
+import { childChainConfiguration } from './childChainConfiguration'
 import { defaultRunTimeState, RuntimeState } from './runTimeState'
 import { transferOwner } from './transferOwnership'
 // Delay function
@@ -21,24 +21,19 @@ function checkRuntimeStateIntegrity(rs: RuntimeState) {
   if (!rs.nativeTokenDeposit) {
     rs.nativeTokenDeposit = defaultRunTimeState.nativeTokenDeposit
   }
-  if (!rs.tokenBridgeDeployed) {
-    rs.tokenBridgeDeployed = defaultRunTimeState.tokenBridgeDeployed
-  }
-  if (!rs.l3config) {
-    rs.l3config = defaultRunTimeState.l3config
-  }
-  if (!rs.transferOwnership) {
-    rs.transferOwnership = defaultRunTimeState.transferOwnership
+  // orbitConfig corresponds to childChainConfiguration
+  if (!rs.orbitConfig) {
+    rs.orbitConfig = defaultRunTimeState.orbitConfig
   }
 }
 
 async function main() {
   // Read the environment variables
   const privateKey = process.env.PRIVATE_KEY
-  const L2_RPC_URL = process.env.L2_RPC_URL
-  const L3_RPC_URL = process.env.L3_RPC_URL
+  const PARENT_CHAIN_RPC_URL = process.env.PARENT_CHAIN_RPC_URL
+  const ORBIT_RPC_URL = process.env.ORBIT_RPC_URL
 
-  if (!privateKey || !L2_RPC_URL || !L3_RPC_URL) {
+  if (!privateKey || !PARENT_CHAIN_RPC_URL || !ORBIT_RPC_URL) {
     throw new Error('Required environment variable not found')
   }
 
@@ -47,7 +42,7 @@ async function main() {
     './config/orbitSetupScriptConfig.json',
     'utf-8'
   )
-  const config: L3Config = JSON.parse(configRaw)
+  const config: ChildChainConfig = JSON.parse(configRaw)
   let rs: RuntimeState
   if (fs.existsSync('./config/resumeState.json')) {
     const stateRaw = fs.readFileSync('./config/resumeState.json', 'utf-8')
@@ -70,18 +65,18 @@ async function main() {
 
   rs.chainId = config.chainId
   // Generating providers from RPCs
-  const L2Provider = new ethers.providers.JsonRpcProvider(L2_RPC_URL)
-  const L3Provider = new ethers.providers.JsonRpcProvider(L3_RPC_URL)
+  const parentChainProvider = new ethers.providers.JsonRpcProvider(PARENT_CHAIN_RPC_URL)
+  const childChainProvider = new ethers.providers.JsonRpcProvider(ORBIT_RPC_URL)
 
   // Checking if the L2 network is the expected parent chain
-  if ((await L2Provider.getNetwork()).chainId !== config.parentChainId) {
+  if ((await parentChainProvider.getNetwork()).chainId !== config.parentChainId) {
     throw new Error(
       'The L2 RPC URL you have provided is not for the correct parent chain'
     )
   }
 
   // Creating the signer
-  const signer = new ethers.Wallet(privateKey).connect(L2Provider)
+  const signer = new ethers.Wallet(privateKey).connect(parentChainProvider)
 
   try {
     ////////////////////////////////////////////////
@@ -122,15 +117,15 @@ async function main() {
       console.log(
         'Running Orbit Chain Native token deposit to Deposit ETH or native ERC20 token from parent chain to your account on Orbit chain ... 💰💰💰💰💰💰'
       )
-      const oldBalance = await L3Provider.getBalance(config.chainOwner)
-      await ethOrERC20Deposit(privateKey, L2_RPC_URL)
+      const oldBalance = await childChainProvider.getBalance(config.chainOwner)
+      await ethOrERC20Deposit(privateKey, PARENT_CHAIN_RPC_URL)
       let depositCheckTime = 0
 
       // Waiting for 30 secs to be sure that ETH/Native token deposited is received on L3
       // Repeatedly check the balance until it changes by 0.4 native tokens
       while (true) {
         depositCheckTime++
-        const newBalance = await L3Provider.getBalance(config.chainOwner)
+        const newBalance = await childChainProvider.getBalance(config.chainOwner)
         if (newBalance.sub(oldBalance).gte(ethers.utils.parseEther('0.4'))) {
           console.log(
             'Balance of your account on Orbit chain increased by the native token you have just sent.'
@@ -150,35 +145,15 @@ async function main() {
       rs.nativeTokenDeposit = true
     }
 
-    if (!rs.tokenBridgeDeployed) {
-      ////////////////////////////////
-      /// Token Bridge Deployment ///
-      //////////////////////////////
-      console.log(
-        'Running tokenBridgeDeployment or erc20TokenBridge script to deploy token bridge contracts on parent chain and your Orbit chain 🌉🌉🌉🌉🌉'
-      )
-      await createERC20Bridge(L2_RPC_URL, privateKey, L3_RPC_URL, config.rollup)
-      rs.tokenBridgeDeployed = true
-    }
     ////////////////////////////////
     /// L3 Chain Configuration ///
     //////////////////////////////
-    if (!rs.l3config) {
+    if (!rs.orbitConfig) {
       console.log(
-        'Running l3Configuration script to configure your Orbit chain 📝📝📝📝📝'
+        'Running childChainConfiguration script to configure your Orbit chain 📝📝📝📝📝'
       )
-      await l3Configuration(privateKey, L2_RPC_URL, L3_RPC_URL)
-      rs.l3config = true
-    }
-    ////////////////////////////////
-    /// Transfering ownership /////
-    //////////////////////////////
-    if (!rs.transferOwnership) {
-      console.log(
-        'Transferring ownership on L3, from rollup owner to upgrade executor 🔃🔃🔃'
-      )
-      await transferOwner(privateKey, L2Provider, L3Provider)
-      rs.transferOwnership = true
+      await childChainConfiguration(privateKey, PARENT_CHAIN_RPC_URL, ORBIT_RPC_URL)
+      rs.orbitConfig = true
     }
   } catch (error) {
     console.error('Error occurred:', error)
