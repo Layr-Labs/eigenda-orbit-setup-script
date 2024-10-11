@@ -33,8 +33,16 @@ async function main() {
   const PARENT_CHAIN_RPC_URL = process.env.PARENT_CHAIN_RPC_URL
   const ORBIT_RPC_URL = process.env.ORBIT_RPC_URL
 
-  if (!privateKey || !PARENT_CHAIN_RPC_URL || !ORBIT_RPC_URL) {
-    throw new Error('Required environment variable not found')
+  if (!privateKey) {
+    throw new Error('PRIVATE_KEY environment variable not found')
+  }
+  
+  if (!PARENT_CHAIN_RPC_URL) {
+    throw new Error('PARENT_CHAIN_RPC_URL environment variable not found')
+  }
+
+  if (!ORBIT_RPC_URL) {
+    throw new Error('ORBIT_RPC_URL environment variable not found')
   }
 
   // Read the JSON configuration
